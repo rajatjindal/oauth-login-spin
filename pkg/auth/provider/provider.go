@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"os"
 
 	"golang.org/x/oauth2"
 )
@@ -17,4 +18,8 @@ func GetAuthConfig(p string) (*oauth2.Config, error) {
 	}
 
 	return nil, fmt.Errorf("unknown provider %s", p)
+}
+
+func SpinFullURL() string {
+	return os.Getenv("Spin-Full-Url")
 }

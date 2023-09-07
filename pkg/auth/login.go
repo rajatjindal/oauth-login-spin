@@ -21,7 +21,8 @@ type Handler struct {
 	AuthConfig     *oauth2.Config
 	ChallengeCache cache.Provider
 
-	errorURL string
+	successURL string
+	errorURL   string
 }
 
 func New() (*Handler, error) {
@@ -35,15 +36,22 @@ func New() (*Handler, error) {
 		return nil, err
 	}
 
-	errorURL, _ := config.Get("error_url")
-	if errorURL == "" {
-		errorURL = "/login/error"
+	errorURL, err := config.Get("error_url")
+	if err != nil {
+		errorURL = provider.SpinFullURL() + "auth/error"
+	}
+
+	successURL, err := config.Get("success_url")
+	if err != nil {
+		successURL = provider.SpinFullURL() + "auth/success"
 	}
 
 	return &Handler{
 		AuthConfig:     authConfig,
 		ChallengeCache: kvcache.Provider(1*time.Minute, 2*time.Minute),
-		errorURL:       errorURL,
+
+		successURL: successURL,
+		errorURL:   errorURL,
 	}, nil
 }
 
@@ -110,7 +118,7 @@ func (h *Handler) LoginCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logrus.Info("login callback function, doing redirect now")
-	link := fmt.Sprintf("%s/#access-token=%s", h.AuthConfig.RedirectURL, token)
+	link := fmt.Sprintf("%s#access-token=%s", h.successURL, token)
 	http.Redirect(w, r, link, http.StatusTemporaryRedirect)
 }
 
