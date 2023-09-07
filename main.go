@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	spinhttp "github.com/fermyon/spin/sdk/go/http"
 	"github.com/rajatjindal/oauth-login-spin/pkg/auth"
@@ -13,6 +14,8 @@ func main() {}
 
 func init() {
 	spinhttp.Handle(func(w http.ResponseWriter, r *http.Request) {
+		os.Setenv(spinhttp.HeaderFullUrl, r.Header.Get(spinhttp.HeaderFullUrl))
+
 		logrus.Info("starting oauth function")
 		h, err := auth.New()
 		if err != nil {

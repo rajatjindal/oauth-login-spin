@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	spinhttp "github.com/fermyon/spin/sdk/go/http"
 	"golang.org/x/oauth2"
 )
 
@@ -21,5 +22,5 @@ func GetAuthConfig(p string) (*oauth2.Config, error) {
 }
 
 func SpinFullURL() string {
-	return os.Getenv("Spin-Full-Url")
+	return os.Getenv(spinhttp.HeaderFullUrl)
 }
