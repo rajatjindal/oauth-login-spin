@@ -1,0 +1,37 @@
+spin_manifest_version = "1"
+authors = ["Rajat Jindal <rajatjindal83@gmail.com>"]
+description = "A webassembly component that adds oauth login functionality to your app"
+name = "oauth-login"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[variables]
+authorize_url = { required = true }
+token_url = { required = true }
+auth_success_redirect_url = { required = true }
+auth_failed_redirect_url = { required = true }
+scopes = { required = true }
+client_id = { required = true, secret = true }
+client_secret = { required = true, secret = true }
+
+[[component]]
+id = "login"
+source = "login.wasm"
+allowed_http_hosts = ["https://github.com"]
+key_value_stores = ["default"]
+
+[component.trigger]
+route = "/login/..."
+
+[component.build]
+command = "tinygo build -target=wasi -gc=leaking -no-debug -o login.wasm main.go"
+watch = ["**/*.go", "go.mod"]
+
+[component.config]
+authorize_url = "{{ authorize_url }}"
+token_url = "{{ token_url }}"
+auth_success_redirect_url = "{{ auth_success_redirect_url }}"
+auth_failed_redirect_url = "{{ auth_failed_redirect_url }}"
+scopes = "{{ scopes }}"
+client_id = "{{ client_id }}"
+client_secret = "{{ client_secret }}"
