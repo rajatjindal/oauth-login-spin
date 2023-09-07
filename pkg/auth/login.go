@@ -6,11 +6,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/fermyon/spin/sdk/go/config"
 	"github.com/google/uuid"
+	"github.com/rajatjindal/oauth-login-spin/pkg/auth/provider"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache/kvcache"
 	"github.com/rajatjindal/oauth-login-spin/pkg/logrus"
@@ -25,59 +25,25 @@ type Handler struct {
 }
 
 func New() (*Handler, error) {
-	clientId, err := config.Get("client_id")
+	authProviderName, err := config.Get("auth_provider")
 	if err != nil {
 		return nil, err
 	}
 
-	clientSecret, err := config.Get("client_secret")
+	authConfig, err := provider.GetAuthConfig(authProviderName)
 	if err != nil {
 		return nil, err
 	}
 
-	authorizeURL, err := config.Get("authorize_url")
-	if err != nil {
-		return nil, err
-	}
-
-	tokenURL, err := config.Get("token_url")
-	if err != nil {
-		return nil, err
-	}
-
-	authSucccessRedirectURL, err := config.Get("auth_success_redirect_url")
-	if err != nil {
-		return nil, err
-	}
-
-	authFailedRedirectURL, err := config.Get("auth_failed_redirect_url")
-	if err != nil {
-		return nil, err
-	}
-
-	scopes, err := config.Get("scopes")
-	if err != nil {
-		return nil, err
-	}
-
-	endpoint := oauth2.Endpoint{
-		AuthURL:   authorizeURL,
-		TokenURL:  tokenURL,
-		AuthStyle: oauth2.AuthStyleInHeader,
-	}
-
-	authconfig := &oauth2.Config{
-		RedirectURL:  authSucccessRedirectURL,
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
-		Scopes:       strings.Split(scopes, ","),
-		Endpoint:     endpoint,
+	errorURL, _ := config.Get("error_url")
+	if errorURL == "" {
+		errorURL = "/login/error"
 	}
 
 	return &Handler{
-		AuthConfig:     authconfig,
+		AuthConfig:     authConfig,
 		ChallengeCache: kvcache.Provider(1*time.Minute, 2*time.Minute),
-		errorURL:       authFailedRedirectURL,
+		errorURL:       errorURL,
 	}, nil
 }
 
