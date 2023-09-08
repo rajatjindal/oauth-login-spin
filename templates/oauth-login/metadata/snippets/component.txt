@@ -8,7 +8,7 @@ error_url = { default = "/auth/error" }
 
 [[component]]
 id = "oauth-login"
-source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.8/login.wasm", digest = "sha256:d7697dcf34989c444c164a1428cc6ab8ba02a4c113d3d344492ca54b9e4ef27d" }
+source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.9/login.wasm", digest = "sha256:e370e06bb39981abb5ff62f82c8915fd0e7761ce936c0f0a6112fdd6d61910a6" }
 allowed_http_hosts = ["https://github.com"]
 key_value_stores = ["default"]
 [component.trigger]
