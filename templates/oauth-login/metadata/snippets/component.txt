@@ -6,7 +6,7 @@ client_secret = { required = true, secret = true }
 
 [[component]]
 id = "oauth-login"
-source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.7/login.wasm", digest = "sha256:36c8fc80d90ee15d018b8daac4e52054cbe9425ce1456e1d3295bf6047e281e1" }
+source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.8/login.wasm", digest = "sha256:d7697dcf34989c444c164a1428cc6ab8ba02a4c113d3d344492ca54b9e4ef27d" }
 allowed_http_hosts = ["https://github.com"]
 key_value_stores = ["default"]
 [component.trigger]
