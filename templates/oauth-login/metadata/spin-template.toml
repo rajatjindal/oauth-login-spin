@@ -1,0 +1,12 @@
+manifest_version = "1"
+id = "oauth-login"
+description = "Add oauth login to your app"
+trigger_type = "http"
+tags = ["http", "oauth"]
+
+[add_component]
+skip_files = ["spin.toml"]
+[add_component.snippets]
+component = "component.txt"
+
+[parameters]

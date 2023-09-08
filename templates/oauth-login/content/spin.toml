@@ -1,0 +1,23 @@
+spin_version = "1"
+name = "{{project-name}}"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[variables]
+auth_provider = { default = "github" }
+scopes = { default = "openid,profile,email" }
+client_id = { required = true, secret = true }
+client_secret = { required = true, secret = true }
+
+[[component]]
+id = "oauth-login"
+source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.6/login.wasm", digest = "sha256:1bfb2364daa0ebed3b52de51ae7cc3395ca35944b8d1d74fb29440325fea3655" }
+allowed_http_hosts = ["https://github.com"]
+key_value_stores = ["default"]
+[component.trigger]
+route = "/login/..."
+[component.config]
+auth_provider = "{{ auth_provider }}"
+scopes = "{{ scopes }}"
+client_id = "{{ client_id }}"
+client_secret = "{{ client_secret }}"
