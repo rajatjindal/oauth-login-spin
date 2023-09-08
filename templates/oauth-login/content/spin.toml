@@ -15,7 +15,7 @@ source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/downl
 allowed_http_hosts = ["https://github.com"]
 key_value_stores = ["default"]
 [component.trigger]
-route = "/login/..."
+route = "/internal/login/..."
 [component.config]
 auth_provider = "{{ auth_provider }}"
 scopes = "{{ scopes }}"

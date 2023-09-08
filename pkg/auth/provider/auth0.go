@@ -36,7 +36,7 @@ func (a auth0) getAuthConfig() (*oauth2.Config, error) {
 	}
 
 	return &oauth2.Config{
-		RedirectURL:  SpinBaseURL() + "/login/callback",
+		RedirectURL:  SpinBaseURL() + "/internal/login/callback",
 		ClientID:     clientId,
 		ClientSecret: clientSecret,
 		Scopes:       strings.Split(rawScopes, ","),
