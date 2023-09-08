@@ -51,13 +51,13 @@ client_secret = "{{ client_secret }}"
 You can now provide client_id and client_secret for your oauth app using `--variable client_id=<client_id> --variable client_secret=<client_secret>` during deploy or you can use GitHub action as follows:
 
 ```yaml
-	- name: Deploy
-		uses: fermyon/actions/spin/deploy@v1
-		with:
-			fermyon_token: ${{ secrets.FERMYON_CLOUD_TOKEN }}
-			variables: |-
-				client_id=${{ secrets.OAUTH_CLIENT_ID }}
-				client_secret=${{ secrets.OAUTH_CLIENT_SECRET }}
+  - name: Deploy
+    uses: fermyon/actions/spin/deploy@v1
+    with:
+      fermyon_token: ${{ secrets.FERMYON_CLOUD_TOKEN }}
+      variables: |-
+        client_id=${{ secrets.OAUTH_CLIENT_ID }}
+        client_secret=${{ secrets.OAUTH_CLIENT_SECRET }}
 ```
 
 once added to your app, you just need to navigate user to `/internal/login/start` path to get oauth process started. once the auth is successful, the component will redirect your app to `/auth/success` (configurable via config `success_url`)
