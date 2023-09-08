@@ -21,7 +21,7 @@ allowed_http_hosts = ["https://github.com"]
 key_value_stores = ["default"]
 
 [component.trigger]
-route = "/login/..."
+route = "/internal/login/..."
 
 [component.build]
 command = "tinygo build -target=wasi -gc=leaking -no-debug -o login.wasm main.go"

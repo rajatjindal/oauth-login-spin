@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/fermyon/spin/sdk/go/key_value"
-	"github.com/rajatjindal/oauth-login-spin/pkg/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func (k *kv) CleanupExpiredCache() error {

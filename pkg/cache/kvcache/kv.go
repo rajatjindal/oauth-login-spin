@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/fermyon/spin/sdk/go/key_value"
-	"github.com/rajatjindal/oauth-login-spin/pkg/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const prefix = "cached:"

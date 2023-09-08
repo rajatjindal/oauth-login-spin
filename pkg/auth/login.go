@@ -13,7 +13,7 @@ import (
 	"github.com/rajatjindal/oauth-login-spin/pkg/auth/provider"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache/kvcache"
-	"github.com/rajatjindal/oauth-login-spin/pkg/logrus"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -56,68 +56,56 @@ func New() (*Handler, error) {
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	logrus.Info("starting login function")
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
 	oauthState := generateStateOauthCookie(state, w)
-	logrus.Info("starting login function, after generating state oauth cookie")
 
 	/*
 		AuthCodeURL receive state that is a token to protect the user from CSRF attacks. You must always provide a non-empty string and
 		validate that it matches the the state query parameter on your redirect callback.
 	*/
 
-	logrus.Info("starting login function, creating challenge code")
 	challengeCode := uuid.New().String() + uuid.New().String()
-	logrus.Info("login function, storing challenge in cache ", state, challengeCode)
 	err := h.storeChallenge(state, challengeCode)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "error", http.StatusInternalServerError)
+		logrus.Error("login start function, failed to store challenge code in cache")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	logrus.Info("starting login function, caching challenge code")
 
 	params := []oauth2.AuthCodeOption{
 		oauth2.SetAuthURLParam("code_challenge", challengeCode),
 		oauth2.SetAuthURLParam("code_challenge_method", "plain"),
 	}
 
-	logrus.Info("starting login function, redirecting to auth code url")
 	u := h.AuthConfig.AuthCodeURL(oauthState, params...)
 	http.Redirect(w, r, u, http.StatusTemporaryRedirect)
 }
 
 func (h *Handler) LoginCallback(w http.ResponseWriter, r *http.Request) {
-	logrus.Info("starting login callback function")
 	oauthState, err := r.Cookie("oauthstate")
 	if err != nil {
+		logrus.Errorf("login callback function, failed to get oauthstate cookie. error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	logrus.Info("login callback function, after getting state from cookie")
 
 	if r.FormValue("state") != oauthState.Value {
-		logrus.Infof("invalid oauth state %s", r.FormValue("state"))
+		logrus.Errorf("login callback function, invalid oauth state %s", r.FormValue("state"))
 		http.Redirect(w, r, h.errorURL, http.StatusTemporaryRedirect)
 		return
 	}
 
-	logrus.Info("login callback function, after getting state from form value ", oauthState.Value)
 	challengeCode := h.getChallenge(oauthState.Value)
-
-	logrus.Info("login callback function, after getting challenge code from auth state ", oauthState.Value, challengeCode)
-
 	token, err := h.exchangeToken(challengeCode, r.FormValue("code"))
 	if err != nil {
-		logrus.Info("login callback function, error calling exchange token", err.Error())
+		logrus.Errorf("login callback function, error calling exchange token. error: %v", err.Error())
 		http.Redirect(w, r, h.errorURL, http.StatusTemporaryRedirect)
 		return
 	}
 
-	logrus.Info("login callback function, doing redirect now")
+	logrus.Info("login successful, redirecting now")
 	link := fmt.Sprintf("%s#access-token=%s", h.successURL, token)
 	http.Redirect(w, r, link, http.StatusTemporaryRedirect)
 }
@@ -130,18 +118,14 @@ func generateStateOauthCookie(state string, w http.ResponseWriter) string {
 }
 
 func (h *Handler) exchangeToken(challenge, code string) (string, error) {
-	logrus.Info("exchange token function")
 	params := []oauth2.AuthCodeOption{
 		oauth2.SetAuthURLParam("code_verifier", challenge),
 	}
 
-	logrus.Info("exchange token function, starting the exchange")
 	token, err := h.AuthConfig.Exchange(context.Background(), code, params...)
 	if err != nil {
 		return "", fmt.Errorf("code exchange wrong: %s", err.Error())
 	}
-
-	logrus.Infof("exchange token function, exchange done. token is %#v", token)
 
 	return token.Extra("access_token").(string), nil
 }
