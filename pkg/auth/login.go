@@ -38,12 +38,12 @@ func New() (*Handler, error) {
 
 	errorURL, err := config.Get("error_url")
 	if err != nil {
-		errorURL = provider.SpinBaseURL() + "/auth/error"
+		return nil, err
 	}
 
 	successURL, err := config.Get("success_url")
 	if err != nil {
-		successURL = provider.SpinBaseURL() + "/auth/success"
+		return nil, err
 	}
 
 	return &Handler{
