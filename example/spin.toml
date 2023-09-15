@@ -1,0 +1,38 @@
+spin_manifest_version = "1"
+authors = ["Rajat Jindal <rajatjindal83@gmail.com>"]
+description = ""
+name = "spin-oauth-example"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[variables]
+auth_provider = { default = "github" }
+success_url = { default = "/" }
+scopes = { default =  "openid,profile,email" }
+client_id = { required = true, secret = true }
+client_secret = { required = true, secret = true }
+
+[[component]]
+id = "login"
+source = { url = "https://github.com/rajatjindal/oauth-login-spin/releases/download/v0.0.8/login.wasm", digest = "sha256:d7697dcf34989c444c164a1428cc6ab8ba02a4c113d3d344492ca54b9e4ef27d" }
+allowed_http_hosts = ["https://github.com"]
+key_value_stores = ["default"]
+[component.trigger]
+route = "/internal/login/..."
+[component.config]
+auth_provider = "{{ auth_provider }}"
+scopes = "{{ scopes }}"
+client_id = "{{ client_id }}"
+client_secret = "{{ client_secret }}"
+success_url = "{{ success_url }}"
+
+[[component]]
+source = { url = "https://github.com/fermyon/spin-fileserver/releases/download/v0.0.3/spin_static_fs.wasm", digest = "sha256:38bf971900228222f7f6b2ccee5051f399adca58d71692cdfdea98997965fd0d" }
+id = "frontend"
+files = [ { source = "ui/", destination = "/" } ]
+[component.trigger]
+route = "/..."
+
+
+
+

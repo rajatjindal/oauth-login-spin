@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Spin oauth login example</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+
+		<script>
+			function updateUsername(http) {
+				if (http.readyState == 4 && http.status == 200) {
+					const user = JSON.parse(http.responseText);
+					document.getElementById('loginButton').classList.toggle("hidden")
+
+					document.getElementById('username').innerText = "hello " + user['login']
+					document.getElementById('username').classList.toggle("hidden")
+				}
+			}
+
+			function getUsername(token) {
+				var http = new XMLHttpRequest();
+				http.open("GET", "https://api.github.com/user", true);
+				http.setRequestHeader("Authorization", `Bearer ${token}`)
+				http.onreadystatechange = function () {
+					updateUsername(http)
+				}
+
+				http.send();
+			}
+
+			function getAuthTokenFromHash() {
+				var hash = window.location.hash.substr(1);
+
+				var result = hash.split('&').reduce(function (res, item) {
+					var parts = item.split('=');
+					res[parts[0]] = parts[1];
+					return res;
+				}, {});
+
+				return result['access-token']
+			}
+
+			const token = getAuthTokenFromHash()
+			if (token && token !== '') {
+				localStorage.setItem('gh-token', token)
+				window.location = "/";
+			} else {
+				// check if it is available in local storage
+				const token = localStorage.getItem('gh-token')
+				getUsername(token)
+			}
+		</script>
+	</head>
+
+	<body class="bg-gray-900 h-screen">
+		<div class="w-full bg-gray-900">
+			<div class="place-items-center grid mt-20">
+				<div class="w-1/2 grid grid-cols-2 gap-4 mx-auto my-auto">
+					<div class="col-span-1 w-full">
+						<p class="mt-2 flex"
+							 id="loginButton">
+							<a href="/internal/login/start"
+								 class="inline-flex justify-center py-1 px-3 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 hover:shadow-sm">
+								Login with GitHub
+							</a>
+						</p>
+						<p id="username" class="text-indigo-300 hidden">
+							
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
