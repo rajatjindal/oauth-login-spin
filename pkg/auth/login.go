@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/fermyon/spin/sdk/go/config"
-	"github.com/google/uuid"
 	"github.com/rajatjindal/oauth-login-spin/pkg/auth/provider"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache"
 	"github.com/rajatjindal/oauth-login-spin/pkg/cache/kvcache"
@@ -18,11 +17,12 @@ import (
 )
 
 type Handler struct {
-	AuthConfig     *oauth2.Config
 	ChallengeCache cache.Provider
 
-	successURL string
-	errorURL   string
+	authprovider provider.Provider
+	authconfig   *oauth2.Config
+	successURL   string
+	errorURL     string
 }
 
 func New() (*Handler, error) {
@@ -31,7 +31,12 @@ func New() (*Handler, error) {
 		return nil, err
 	}
 
-	authConfig, err := provider.GetAuthConfig(authProviderName)
+	authprovider, err := provider.GetProvider(authProviderName)
+	if err != nil {
+		return nil, err
+	}
+
+	authconfig, err := authprovider.GetAuthConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -47,11 +52,12 @@ func New() (*Handler, error) {
 	}
 
 	return &Handler{
-		AuthConfig:     authConfig,
 		ChallengeCache: kvcache.Provider(1*time.Minute, 2*time.Minute),
 
-		successURL: successURL,
-		errorURL:   errorURL,
+		authprovider: authprovider,
+		authconfig:   authconfig,
+		successURL:   successURL,
+		errorURL:     errorURL,
 	}, nil
 }
 
@@ -66,7 +72,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		validate that it matches the the state query parameter on your redirect callback.
 	*/
 
-	challengeCode := uuid.New().String() + uuid.New().String()
+	challengeCode, challengeType := h.authprovider.GetAuthCodeChallengeAndType()
 	err := h.storeChallenge(state, challengeCode)
 	if err != nil {
 		logrus.Error("login start function, failed to store challenge code in cache")
@@ -76,10 +82,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	params := []oauth2.AuthCodeOption{
 		oauth2.SetAuthURLParam("code_challenge", challengeCode),
-		oauth2.SetAuthURLParam("code_challenge_method", "plain"),
+		oauth2.SetAuthURLParam("code_challenge_method", challengeType),
 	}
 
-	u := h.AuthConfig.AuthCodeURL(oauthState, params...)
+	u := h.authconfig.AuthCodeURL(oauthState, params...)
 	http.Redirect(w, r, u, http.StatusTemporaryRedirect)
 }
 
@@ -122,7 +128,7 @@ func (h *Handler) exchangeToken(challenge, code string) (string, error) {
 		oauth2.SetAuthURLParam("code_verifier", challenge),
 	}
 
-	token, err := h.AuthConfig.Exchange(context.Background(), code, params...)
+	token, err := h.authconfig.Exchange(context.Background(), code, params...)
 	if err != nil {
 		return "", fmt.Errorf("code exchange wrong: %s", err.Error())
 	}

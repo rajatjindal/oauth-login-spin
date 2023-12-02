@@ -10,7 +10,7 @@ import (
 
 type auth0 struct{}
 
-func (a auth0) getAuthConfig() (*oauth2.Config, error) {
+func (a auth0) GetAuthConfig() (*oauth2.Config, error) {
 	tenant, err := config.Get("tenant")
 	if err != nil {
 		return nil, err
@@ -42,4 +42,8 @@ func (a auth0) getAuthConfig() (*oauth2.Config, error) {
 		Scopes:       strings.Split(rawScopes, ","),
 		Endpoint:     endpoint,
 	}, nil
+}
+
+func (g auth0) GetAuthCodeChallengeAndType() (string, string) {
+	return GetPlainAuthCodeChallengeAndType()
 }
