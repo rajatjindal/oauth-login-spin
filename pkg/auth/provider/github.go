@@ -9,7 +9,7 @@ import (
 
 type github struct{}
 
-func (g github) getAuthConfig() (*oauth2.Config, error) {
+func (g github) GetAuthConfig() (*oauth2.Config, error) {
 	clientId, err := config.Get("client_id")
 	if err != nil {
 		return nil, err
@@ -39,4 +39,8 @@ func (g github) getAuthConfig() (*oauth2.Config, error) {
 		Scopes:       strings.Split(rawScopes, ","),
 		Endpoint:     endpoint,
 	}, nil
+}
+
+func (g github) GetAuthCodeChallengeAndType() (string, string) {
+	return GetPlainAuthCodeChallengeAndType()
 }
