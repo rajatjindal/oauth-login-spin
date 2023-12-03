@@ -41,6 +41,6 @@ func (g spotify) GetAuthConfig() (*oauth2.Config, error) {
 	}, nil
 }
 
-func (g spotify) GetAuthCodeChallengeAndType() (string, string) {
+func (g spotify) GetAuthCodeChallengeAndType() (string, string, string, error) {
 	return GetSha256AuthCodeChallengeAndType()
 }

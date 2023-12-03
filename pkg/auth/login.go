@@ -72,8 +72,19 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		validate that it matches the the state query parameter on your redirect callback.
 	*/
 
-	challengeCode, challengeType := h.authprovider.GetAuthCodeChallengeAndType()
-	err := h.storeChallenge(state, challengeCode)
+	verifier, challengeCode, challengeType, err := h.authprovider.GetAuthCodeChallengeAndType()
+	if err != nil {
+		logrus.Error("login start function, failed to store challenge code in cache")
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if challengeType == "S256" {
+		err = h.storeChallenge(state, verifier)
+	} else {
+		err = h.storeChallenge(state, challengeCode)
+	}
+
 	if err != nil {
 		logrus.Error("login start function, failed to store challenge code in cache")
 		http.Error(w, "internal server error", http.StatusInternalServerError)

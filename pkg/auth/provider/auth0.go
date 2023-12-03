@@ -44,6 +44,6 @@ func (a auth0) GetAuthConfig() (*oauth2.Config, error) {
 	}, nil
 }
 
-func (g auth0) GetAuthCodeChallengeAndType() (string, string) {
+func (g auth0) GetAuthCodeChallengeAndType() (string, string, string, error) {
 	return GetPlainAuthCodeChallengeAndType()
 }
