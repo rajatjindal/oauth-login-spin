@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/fermyon/spin/sdk/go v1.4.2
-	github.com/google/uuid v1.3.1
 	github.com/sirupsen/logrus v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/oauth2 v0.11.0
